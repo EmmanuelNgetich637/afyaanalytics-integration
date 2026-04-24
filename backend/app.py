@@ -1,6 +1,6 @@
 """
 Main Flask application for AfyaAnalytics integration service.
-Exposes API endpoints for handshake authentication flow.
+Handles handshake API endpoint execution.
 """
 
 from flask import Flask, jsonify
@@ -11,11 +11,8 @@ from services.afya_service import AfyaService
 app = Flask(__name__)
 CORS(app)
 
-# Create service instance
 afya_service = AfyaService()
 
-
-# HEALTH CHECK ENDPOINT
 
 @app.route("/")
 def home():
@@ -24,26 +21,28 @@ def home():
     })
 
 
-# START HANDSHAKE FLOW
-
 @app.route("/start-handshake", methods=["GET"])
 def start_handshake():
     result = afya_service.run_full_handshake_flow()
 
-    if not result:
+    if not result or result.get("success") is not True:
         return jsonify({
             "success": False,
-            "message": "Handshake flow failed"
+            "message": result.get("message", "Handshake failed"),
+            "data": result
         }), 500
 
     return jsonify({
         "success": True,
-        "message": "Handshake completed successfully",
-        "data": result
-    })
+        "message": result.get("message"),
+        "data": result.get("data")
+    }), 200
 
 
-# RUN SERVER
+@app.route("/callback", methods=["POST"])
+def callback():
+    return jsonify({"message": "Callback received"}), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)

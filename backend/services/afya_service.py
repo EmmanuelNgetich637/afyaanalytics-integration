@@ -4,12 +4,13 @@ Manages initiation, completion, and token lifecycle.
 """
 
 import requests
+import time
+
 from config import (
     BASE_URL,
     PLATFORM_NAME,
     PLATFORM_KEY,
     PLATFORM_SECRET,
-    HANDSHAKE_EXPIRY_SECONDS,
     REQUEST_TIMEOUT
 )
 
@@ -20,8 +21,9 @@ class AfyaService:
     def __init__(self):
         self.token_manager = TokenManager()
 
-    #INITIATE HANDSHAKE
-    
+    # -------------------------
+    # INITIATE HANDSHAKE
+    # -------------------------
     def initiate_handshake(self):
         url = f"{BASE_URL}/initiate-handshake"
 
@@ -32,32 +34,45 @@ class AfyaService:
             "callback_url": "http://localhost:5000/callback"
         }
 
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+
         try:
-            response = requests.post(url, json=payload, timeout=REQUEST_TIMEOUT)
+            print("\n➡️ INITIATING HANDSHAKE...")
+
+            response = requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=REQUEST_TIMEOUT
+            )
+
+            print("STATUS:", response.status_code)
+            print("RAW RESPONSE:", response.text)
+
             data = response.json()
 
             if not data.get("success"):
-                raise Exception(data.get("message", "Handshake initiation failed"))
+                print("❌ INIT FAILED:", data)
+                return None
 
             handshake_token = data["data"]["handshake_token"]
             expires_in = data["data"]["expires_in_seconds"]
 
-            # store token
             self.token_manager.set_handshake_token(handshake_token, expires_in)
 
             print("✅ Handshake initiated")
-            print("Token:", handshake_token)
-            print("Expires in:", expires_in, "seconds")
-
             return data
 
         except Exception as e:
-            print("❌ Error initiating handshake:", str(e))
+            print("❌ INIT ERROR:", str(e))
             return None
 
-
-    #COMPLETE HANDSHAKE
-    
+    # -------------------------
+    # COMPLETE HANDSHAKE
+    # -------------------------
     def complete_handshake(self):
         url = f"{BASE_URL}/complete-handshake"
 
@@ -67,52 +82,77 @@ class AfyaService:
             print("❌ No handshake token found")
             return None
 
+        if not self.token_manager.is_handshake_valid():
+            print("❌ Handshake expired")
+            return None
+
         payload = {
             "handshake_token": handshake_token,
             "platform_key": PLATFORM_KEY
         }
 
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+
         try:
-            response = requests.post(url, json=payload, timeout=REQUEST_TIMEOUT)
+            print("\n➡️ COMPLETING HANDSHAKE...")
+
+            response = requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=REQUEST_TIMEOUT
+            )
+
+            print("STATUS:", response.status_code)
+            print("RAW RESPONSE:", response.text)
+
             data = response.json()
 
             if not data.get("success"):
-                raise Exception(data.get("message", "Handshake completion failed"))
+                print("❌ COMPLETE FAILED:", data)
+                return None
 
             access_token = data["data"]["access_token"]
             refresh_token = data["data"]["refresh_token"]
             expires_in = data["data"]["expires_in_seconds"]
 
-            # store access token
             self.token_manager.set_access_token(access_token, expires_in)
-
-            print("✅ Handshake completed")
-            print("Access Token:", access_token)
 
             return data
 
         except Exception as e:
-            print("❌ Error completing handshake:", str(e))
+            print("❌ COMPLETE ERROR:", str(e))
             return None
 
-    # STEP 3: FULL FLOW (AUTO)
-
+    # -------------------------
+    # FULL FLOW
+    # -------------------------
     def run_full_handshake_flow(self):
-        """
-        Executes full authentication flow:
-        1. Initiate handshake
-        2. Complete handshake
-        """
-
-        print("🚀 Starting Afyanalytics handshake flow...")
+        print("\n🚀 STARTING FULL HANDSHAKE FLOW...\n")
 
         init_result = self.initiate_handshake()
         if not init_result:
-            return None
+            return {
+                "success": False,
+                "message": "Initiate handshake failed"
+            }
+
+        time.sleep(1)
 
         complete_result = self.complete_handshake()
         if not complete_result:
-            return None
+            return {
+                "success": False,
+                "message": "Complete handshake failed"
+            }
 
-        print("🎉 Full authentication successful")
-        return complete_result
+        print("\n🎉 FULL AUTH SUCCESS\n")
+
+        return {
+            "success": True,
+            "message": "Handshake completed successfully",
+            "data": complete_result
+        }
