@@ -14,3 +14,8 @@ venv/
 
 # Node 
 node_modules/.vscode/
+
+echo "venv/" >> .gitignore
+echo "backend/venv/" >> .gitignore
+echo "__pycache__/" >> .gitignore
+echo "*.pyc" >> .gitignore
