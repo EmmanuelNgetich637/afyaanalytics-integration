@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AfyaAnalytics Integration</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1>AfyaAnalytics Handshake</h1>
+
+    <button id="startBtn">Start Handshake</button>
+
+    <div id="status" class="status"></div>
+
+    <div id="result" class="result hidden">
+      <h3>Access Token</h3>
+      <p id="accessToken"></p>
+
+      <h3>Refresh Token</h3>
+      <p id="refreshToken"></p>
+
+      <h3>Expires At</h3>
+      <p id="expiry"></p>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
