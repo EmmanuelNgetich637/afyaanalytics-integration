@@ -1,44 +1,58 @@
-const btn = document.getElementById("startBtn");
-const statusDiv = document.getElementById("status");
-const resultDiv = document.getElementById("result");
+const logContainer = document.getElementById("logContainer");
 
-btn.addEventListener("click", async () => {
-  statusDiv.innerText = "⏳ Running handshake...";
-  resultDiv.classList.add("hidden");
+function log(message, data = null) {
+  const div = document.createElement("div");
+  div.className = "log";
+  div.innerText = message + (data ? "\n" + JSON.stringify(data, null, 2) : "");
+  logContainer.prepend(div);
+}
 
-  try {
-    const data = await startHandshake();
+// STEP 1
+document.getElementById("startBtn").addEventListener("click", async () => {
+  document.getElementById("initStatus").innerText = "Starting...";
 
-    console.log("API RESPONSE:", data); // 🔍 debug (keep this)
+  const res = await fetch("http://127.0.0.1:5000/start-handshake");
+  const data = await res.json();
 
-    if (!data.success) {
-      statusDiv.innerText = "❌ Failed: " + data.message;
-      return;
-    }
+  log("INIT RESPONSE", data);
 
-    statusDiv.innerText = "✅ Handshake Successful";
-
-    // ✅ IMPORTANT: correct path
-    const tokens = data.data.data;
-
-    if (!tokens) {
-      statusDiv.innerText = "❌ No token data returned";
-      return;
-    }
-
-    document.getElementById("accessToken").innerText =
-      tokens.access_token || "N/A";
-
-    document.getElementById("refreshToken").innerText =
-      tokens.refresh_token || "N/A";
-
-    document.getElementById("expiry").innerText =
-      tokens.expires_at || "N/A";
-
-    resultDiv.classList.remove("hidden");
-
-  } catch (err) {
-    console.error(err);
-    statusDiv.innerText = "❌ Error: " + err.message;
+  if (!data.success) {
+    document.getElementById("initStatus").innerText = "Failed";
+    return;
   }
+
+  document.getElementById("handshakeToken").innerText =
+    data.data.data.access_token || "Token created";
+
+  document.getElementById("initStatus").innerText = "Success";
 });
+
+// STEP 2
+document.getElementById("completeBtn").addEventListener("click", async () => {
+  document.getElementById("completeStatus").innerText = "Completing...";
+
+  const res = await fetch("http://127.0.0.1:5000/start-handshake");
+  const data = await res.json();
+
+  log("COMPLETE RESPONSE", data);
+
+  if (!data.success) {
+    document.getElementById("completeStatus").innerText = "Failed";
+    return;
+  }
+
+  const tokens = data.data.data;
+
+  document.getElementById("accessToken").innerText = tokens.access_token;
+  document.getElementById("refreshToken").innerText = tokens.refresh_token;
+  document.getElementById("expiry").innerText = tokens.expires_at;
+
+  document.getElementById("status").innerText = "Authenticated ✅";
+});
+
+// COPY
+function copyToken(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text);
+  alert("Copied!");
+}

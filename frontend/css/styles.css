@@ -1,44 +1,135 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  margin-top: 50px;
-}
-
-.container {
-  width: 400px;
-  text-align: center;
-}
-
-button {
-  padding: 12px 20px;
-  background: #22c55e;
-  border: none;
+  margin: 0;
+  font-family: Arial;
+  background: #0b1220;
   color: white;
-  font-size: 16px;
+}
+
+.app {
+  display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  background: #0f172a;
+  padding: 20px;
+  height: 100vh;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+nav a {
+  display: block;
+  padding: 10px;
+  color: #94a3b8;
   cursor: pointer;
-  border-radius: 8px;
 }
 
-button:hover {
-  background: #16a34a;
+nav a.active {
+  background: #1e293b;
+  border-radius: 6px;
+  color: white;
 }
 
-.status {
+.platform {
+  margin-top: 40px;
+  font-size: 12px;
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+/* TOPBAR */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.status-badge {
+  background: #22c55e;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+/* FLOW */
+.flow {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.step {
+  width: 40px;
+  height: 40px;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.step.success {
+  background: #22c55e;
+}
+
+.line {
+  flex: 1;
+  height: 2px;
+  background: #334155;
+}
+
+/* CARDS */
+.cards {
+  display: flex;
+  gap: 20px;
+}
+
+.card {
+  flex: 1;
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.success-card {
+  background: #064e3b;
+}
+
+/* TOKENS */
+.tokens {
+  display: flex;
+  gap: 20px;
   margin-top: 20px;
-  font-weight: bold;
 }
 
-.result {
-  margin-top: 20px;
-  text-align: left;
+.token-box {
+  flex: 1;
   background: #1e293b;
   padding: 15px;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
-.hidden {
-  display: none;
+p {
+  font-size: 12px;
+  word-break: break-all;
+}
+
+/* LOGS */
+.logs {
+  margin-top: 30px;
+}
+
+.log {
+  background: #020617;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  font-size: 11px;
 }

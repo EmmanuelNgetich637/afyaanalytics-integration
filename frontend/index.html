@@ -1,29 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>AfyaAnalytics Integration</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body>
+  <div class="app">
 
-  <div class="container">
-    <h1>AfyaAnalytics Handshake</h1>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h2>AfyaAnalytics</h2>
+      <p class="subtitle">External Platform Integration</p>
 
-    <button id="startBtn">Start Handshake</button>
+      <nav>
+        <a class="active">Dashboard</a>
+        <a>Handshake Flow</a>
+        <a>Logs</a>
+      </nav>
 
-    <div id="status" class="status"></div>
+      <div class="platform">
+        <h4>Platform Info</h4>
+        <p>Test Platform v2</p>
+      </div>
+    </aside>
 
-    <div id="result" class="result hidden">
-      <h3>Access Token</h3>
-      <p id="accessToken"></p>
+    <!-- MAIN -->
+    <main class="main">
 
-      <h3>Refresh Token</h3>
-      <p id="refreshToken"></p>
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <h1>AfyaAnalytics External Integration</h1>
+        <div class="status-badge">● Online</div>
+      </div>
 
-      <h3>Expires At</h3>
-      <p id="expiry"></p>
-    </div>
+      <!-- FLOW -->
+      <div class="flow">
+        <div class="step" id="step1">1</div>
+        <div class="line"></div>
+        <div class="step" id="step2">2</div>
+        <div class="line"></div>
+        <div class="step success" id="step3">✓</div>
+      </div>
+
+      <!-- CARDS -->
+      <div class="cards">
+
+        <div class="card">
+          <h3>Step 1: Initiate Handshake</h3>
+          <button id="startBtn">Start Handshake</button>
+          <p id="initStatus"></p>
+        </div>
+
+        <div class="card">
+          <h3>Step 2: Complete Handshake</h3>
+          <button id="completeBtn">Complete Handshake</button>
+          <p id="completeStatus"></p>
+        </div>
+
+        <div class="card success-card">
+          <h3>Status</h3>
+          <p id="status">Idle</p>
+        </div>
+
+      </div>
+
+      <!-- TOKENS -->
+      <div class="tokens">
+
+        <div class="token-box">
+          <h3>Handshake Token</h3>
+          <p id="handshakeToken"></p>
+          <p id="handshakeExpiry"></p>
+          <button onclick="copyToken('handshakeToken')">Copy</button>
+        </div>
+
+        <div class="token-box">
+          <h3>Access Token</h3>
+          <p id="accessToken"></p>
+          <p id="refreshToken"></p>
+          <p id="expiry"></p>
+          <button onclick="copyToken('accessToken')">Copy</button>
+        </div>
+
+      </div>
+
+      <!-- LOGS -->
+      <div class="logs">
+        <h3>API Logs</h3>
+        <div id="logContainer"></div>
+      </div>
+
+    </main>
   </div>
 
   <script src="js/api.js"></script>
