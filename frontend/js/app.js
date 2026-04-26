@@ -1,58 +1,87 @@
+import {
+  createSession,
+  initiateHandshake,
+  completeHandshake
+} from "./api.js";
+
 const logContainer = document.getElementById("logContainer");
+
+let state = {
+  session: null,
+  handshake: null,
+  tokens: null
+};
 
 function log(message, data = null) {
   const div = document.createElement("div");
   div.className = "log";
-  div.innerText = message + (data ? "\n" + JSON.stringify(data, null, 2) : "");
+  div.innerText =
+    message + (data ? "\n" + JSON.stringify(data, null, 2) : "");
   logContainer.prepend(div);
 }
 
-// STEP 1
+
+// --------------------
+// INIT SESSION
+// --------------------
 document.getElementById("startBtn").addEventListener("click", async () => {
-  document.getElementById("initStatus").innerText = "Starting...";
+  document.getElementById("initStatus").innerText = "Creating session...";
 
-  const res = await fetch("http://127.0.0.1:5000/start-handshake");
-  const data = await res.json();
+  state.session = await createSession();
 
-  log("INIT RESPONSE", data);
+  log("SESSION CREATED", state.session);
 
-  if (!data.success) {
+  const res = await initiateHandshake();
+
+  log("INIT RESPONSE", res);
+
+  if (!res.success) {
     document.getElementById("initStatus").innerText = "Failed";
     return;
   }
 
+  state.handshake = res.data;
+
   document.getElementById("handshakeToken").innerText =
-    data.data.data.access_token || "Token created";
+    res.data.handshake_token;
 
   document.getElementById("initStatus").innerText = "Success";
 });
 
-// STEP 2
+
+// --------------------
+// COMPLETE HANDSHAKE
+// --------------------
 document.getElementById("completeBtn").addEventListener("click", async () => {
   document.getElementById("completeStatus").innerText = "Completing...";
 
-  const res = await fetch("http://127.0.0.1:5000/start-handshake");
-  const data = await res.json();
+  const res = await completeHandshake();
 
-  log("COMPLETE RESPONSE", data);
+  log("COMPLETE RESPONSE", res);
 
-  if (!data.success) {
+  if (!res.success) {
     document.getElementById("completeStatus").innerText = "Failed";
     return;
   }
 
-  const tokens = data.data.data;
+  state.tokens = res.data;
 
-  document.getElementById("accessToken").innerText = tokens.access_token;
-  document.getElementById("refreshToken").innerText = tokens.refresh_token;
-  document.getElementById("expiry").innerText = tokens.expires_at;
+  document.getElementById("accessToken").innerText =
+    res.data.access_token;
+
+  document.getElementById("refreshToken").innerText =
+    res.data.refresh_token;
 
   document.getElementById("status").innerText = "Authenticated ✅";
+
+  document.getElementById("completeStatus").innerText = "Success";
 });
 
+
+// --------------------
 // COPY
-function copyToken(id) {
+// --------------------
+window.copyToken = function (id) {
   const text = document.getElementById(id).innerText;
   navigator.clipboard.writeText(text);
-  alert("Copied!");
-}
+};

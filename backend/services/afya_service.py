@@ -49,17 +49,21 @@ class AfyaService:
                 timeout=REQUEST_TIMEOUT
             )
 
+            data = response.json()
+
             print("STATUS:", response.status_code)
             print("RAW RESPONSE:", response.text)
-
-            data = response.json()
 
             if not data.get("success"):
                 print("❌ INIT FAILED:", data)
                 return None
 
-            handshake_token = data["data"]["handshake_token"]
-            expires_in = data["data"]["expires_in_seconds"]
+            handshake_token = data.get("data", {}).get("handshake_token")
+            expires_in = data.get("data", {}).get("expires_in_seconds")
+
+            if not handshake_token:
+                print("❌ Missing handshake token")
+                return None
 
             self.token_manager.set_handshake_token(handshake_token, expires_in)
 
@@ -71,19 +75,17 @@ class AfyaService:
             return None
 
     # -------------------------
-    # COMPLETE HANDSHAKE
+    # COMPLETE HANDSHAKE (FIXED)
     # -------------------------
-    def complete_handshake(self):
+    def complete_handshake(self, handshake_token):
+        """
+        FIX: now accepts handshake_token from Flask route
+        """
+
         url = f"{BASE_URL}/complete-handshake"
 
-        handshake_token = self.token_manager.get_handshake_token()
-
         if not handshake_token:
-            print("❌ No handshake token found")
-            return None
-
-        if not self.token_manager.is_handshake_valid():
-            print("❌ Handshake expired")
+            print("❌ No handshake token provided")
             return None
 
         payload = {
@@ -106,21 +108,28 @@ class AfyaService:
                 timeout=REQUEST_TIMEOUT
             )
 
+            data = response.json()
+
             print("STATUS:", response.status_code)
             print("RAW RESPONSE:", response.text)
-
-            data = response.json()
 
             if not data.get("success"):
                 print("❌ COMPLETE FAILED:", data)
                 return None
 
-            access_token = data["data"]["access_token"]
-            refresh_token = data["data"]["refresh_token"]
-            expires_in = data["data"]["expires_in_seconds"]
+            access_data = data.get("data", {})
+
+            access_token = access_data.get("access_token")
+            refresh_token = access_data.get("refresh_token")
+            expires_in = access_data.get("expires_in_seconds")
+
+            if not access_token:
+                print("❌ Missing access token")
+                return None
 
             self.token_manager.set_access_token(access_token, expires_in)
 
+            print("✅ Handshake completed")
             return data
 
         except Exception as e:
@@ -128,7 +137,7 @@ class AfyaService:
             return None
 
     # -------------------------
-    # FULL FLOW
+    # FULL FLOW (OPTIONAL UTILITY)
     # -------------------------
     def run_full_handshake_flow(self):
         print("\n🚀 STARTING FULL HANDSHAKE FLOW...\n")
@@ -142,7 +151,9 @@ class AfyaService:
 
         time.sleep(1)
 
-        complete_result = self.complete_handshake()
+        handshake_token = self.token_manager.get_handshake_token()
+
+        complete_result = self.complete_handshake(handshake_token)
         if not complete_result:
             return {
                 "success": False,
