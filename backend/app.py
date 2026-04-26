@@ -5,17 +5,7 @@ from services.afya_service import AfyaService
 from sessions.session_store import SessionStore
 
 app = Flask(__name__)
-
-# --------------------
-# FIXED CORS CONFIG (IMPORTANT)
-# --------------------
-CORS(
-    app,
-    resources={r"/*": {"origins": "*"}},
-    supports_credentials=True,
-    allow_headers=["Content-Type", "Authorization"],
-    methods=["GET", "POST", "OPTIONS"]
-)
+CORS(app)
 
 afya_service = AfyaService()
 store = SessionStore()
@@ -53,10 +43,7 @@ def initiate(session_id):
 
     session = store.get(session_id)
     if not session:
-        return jsonify({
-            "success": False,
-            "message": "Invalid session"
-        }), 404
+        return jsonify({"success": False, "message": "Invalid session"}), 404
 
     result = afya_service.initiate_handshake()
 
@@ -68,12 +55,13 @@ def initiate(session_id):
         }), 500
 
     data = result.get("data", {})
+
     handshake_token = data.get("handshake_token")
 
     if not handshake_token:
         return jsonify({
             "success": False,
-            "message": "Handshake token missing",
+            "message": "No handshake token returned",
             "raw": result
         }), 500
 
@@ -95,10 +83,7 @@ def complete(session_id):
 
     session = store.get(session_id)
     if not session:
-        return jsonify({
-            "success": False,
-            "message": "Invalid session"
-        }), 404
+        return jsonify({"success": False, "message": "Invalid session"}), 404
 
     handshake_token = session.get("handshake_token")
 

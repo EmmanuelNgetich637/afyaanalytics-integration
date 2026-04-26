@@ -1,10 +1,14 @@
 import {
   createSession,
   initiateHandshake,
-  completeHandshake
+  completeHandshake,
+  refreshToken
 } from "./api.js";
 
-import { startTokenTimer } from "./timer.js";
+import {
+  startHandshakeTimer,
+  startAccessTimer
+} from "./timer.js";
 
 const logContainer = document.getElementById("logContainer");
 
@@ -22,9 +26,9 @@ function log(message, data = null) {
   logContainer.prepend(div);
 }
 
-// --------------------
-// INIT SESSION
-// --------------------
+/* --------------------
+   INIT SESSION
+-------------------- */
 document.getElementById("startBtn").addEventListener("click", async () => {
   document.getElementById("initStatus").innerText = "Creating session...";
 
@@ -47,11 +51,41 @@ document.getElementById("startBtn").addEventListener("click", async () => {
     res.data.handshake_token;
 
   document.getElementById("initStatus").innerText = "Success";
+
+  /* ✅ HANDSHAKE TIMER (900s) */
+  startHandshakeTimer(res.data.expires_in_seconds);
 });
 
-// --------------------
-// COMPLETE HANDSHAKE
-// --------------------
+/* --------------------
+   AUTO REFRESH
+-------------------- */
+async function handleRefresh() {
+  log("Refreshing token...");
+
+  const res = await refreshToken(state.tokens.refresh_token);
+
+  if (!res.success) {
+    log("Refresh failed", res);
+    return;
+  }
+
+  state.tokens = res.data;
+
+  document.getElementById("accessToken").innerText =
+    res.data.access_token;
+
+  document.getElementById("refreshToken").innerText =
+    res.data.refresh_token;
+
+  log("Token refreshed", res.data);
+
+  /* restart access timer */
+  startAccessTimer(res.data.expires_in_seconds);
+}
+
+/* --------------------
+   COMPLETE HANDSHAKE
+-------------------- */
 document.getElementById("completeBtn").addEventListener("click", async () => {
   document.getElementById("completeStatus").innerText = "Completing...";
 
@@ -73,16 +107,17 @@ document.getElementById("completeBtn").addEventListener("click", async () => {
     res.data.refresh_token;
 
   document.getElementById("status").innerText = "Authenticated ✅";
+  document.getElementById("status").style.color = "#22c55e";
 
-  // ✅ START TOKEN TIMER (15 min)
-  startTokenTimer(900);
+  /* ✅ ACCESS TOKEN TIMER (6h from backend) */
+  startAccessTimer(res.data.expires_in_seconds);
 
   document.getElementById("completeStatus").innerText = "Success";
 });
 
-// --------------------
-// COPY
-// --------------------
+/* --------------------
+   COPY
+-------------------- */
 window.copyToken = function (id) {
   const text = document.getElementById(id).innerText;
   navigator.clipboard.writeText(text);

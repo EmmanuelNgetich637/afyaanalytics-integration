@@ -1,57 +1,64 @@
-let timerInterval = null;
+let handshakeTimer = null;
+let accessTimer = null;
 
-export function startTokenTimer(durationSeconds = 900) {
-  const display = document.getElementById("tokenTimer");
-  const expiryEl = document.getElementById("expiry");
-  const statusEl = document.getElementById("status");
+function format(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
 
-  let remaining = durationSeconds;
+/* --------------------------
+   HANDSHAKE TIMER (900s)
+-------------------------- */
+export function startHandshakeTimer(seconds) {
+  const el = document.getElementById("handshakeExpiry");
 
-  if (timerInterval) {
-    clearInterval(timerInterval);
-  }
+  clearInterval(handshakeTimer);
 
-  if (statusEl) {
-    statusEl.innerText = "Authenticated ✅ (Active Session)";
-    statusEl.style.color = "#22c55e";
-  }
+  let remaining = Number(seconds);
 
-  function update() {
-    const minutes = Math.floor(remaining / 60);
-    const seconds = remaining % 60;
+  if (isNaN(remaining)) remaining = 0;
 
-    const formatted = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-
-    if (display) {
-      display.innerText = `Time Remaining: ${formatted}`;
-    }
-
-    if (expiryEl) {
-      expiryEl.innerText = `Expires in: ${formatted}`;
-    }
+  handshakeTimer = setInterval(() => {
+    el.innerText = `Handshake expires in: ${format(remaining)}`;
 
     if (remaining <= 0) {
-      clearInterval(timerInterval);
+      clearInterval(handshakeTimer);
+      el.innerText = "Handshake expired ❌";
+      return;
+    }
 
-      if (display) display.innerText = "Token Expired ❌";
+    remaining--;
+  }, 1000);
+}
 
-      if (statusEl) {
-        statusEl.innerText = "Session Expired ❌";
-        statusEl.style.color = "#ef4444";
-      }
+/* --------------------------
+   ACCESS TOKEN TIMER (21600s)
+-------------------------- */
+export function startAccessTimer(seconds) {
+  const el = document.getElementById("tokenTimer");
+  const status = document.getElementById("status");
+
+  clearInterval(accessTimer);
+
+  let remaining = Number(seconds);
+
+  if (isNaN(remaining)) remaining = 0;
+
+  accessTimer = setInterval(() => {
+    el.innerText = `Time Remaining: ${format(remaining)}`;
+
+    if (remaining <= 0) {
+      clearInterval(accessTimer);
+
+      el.innerText = "Token Expired ❌";
+
+      status.innerText = "Session Expired ❌";
+      status.style.color = "#ef4444";
 
       return;
     }
 
     remaining--;
-  }
-
-  update();
-  timerInterval = setInterval(update, 1000);
-}
-
-export function stopTokenTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-  }
+  }, 1000);
 }

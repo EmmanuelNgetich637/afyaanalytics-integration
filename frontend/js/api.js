@@ -10,7 +10,7 @@ export async function createSession() {
   const data = await res.json();
   sessionId = data.session_id;
 
-  return sessionId;
+  return data;
 }
 
 export async function initiateHandshake() {
@@ -24,6 +24,19 @@ export async function initiateHandshake() {
 export async function completeHandshake() {
   const res = await fetch(`${BASE_URL}/session/${sessionId}/complete`, {
     method: "POST"
+  });
+
+  return await res.json();
+}
+
+/* 🔁 ADD THIS — FIX FOR YOUR ERROR */
+export async function refreshToken(refresh_token) {
+  const res = await fetch(`${BASE_URL}/refresh-token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ refresh_token })
   });
 
   return await res.json();
