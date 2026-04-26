@@ -4,6 +4,8 @@ import {
   completeHandshake
 } from "./api.js";
 
+import { startTokenTimer } from "./timer.js";
+
 const logContainer = document.getElementById("logContainer");
 
 let state = {
@@ -19,7 +21,6 @@ function log(message, data = null) {
     message + (data ? "\n" + JSON.stringify(data, null, 2) : "");
   logContainer.prepend(div);
 }
-
 
 // --------------------
 // INIT SESSION
@@ -48,7 +49,6 @@ document.getElementById("startBtn").addEventListener("click", async () => {
   document.getElementById("initStatus").innerText = "Success";
 });
 
-
 // --------------------
 // COMPLETE HANDSHAKE
 // --------------------
@@ -74,9 +74,11 @@ document.getElementById("completeBtn").addEventListener("click", async () => {
 
   document.getElementById("status").innerText = "Authenticated ✅";
 
+  // ✅ START TOKEN TIMER (15 min)
+  startTokenTimer(900);
+
   document.getElementById("completeStatus").innerText = "Success";
 });
-
 
 // --------------------
 // COPY
