@@ -52,10 +52,25 @@ nav a.active {
   justify-content: space-between;
 }
 
+/* UPDATED STATUS INDICATOR (clean dot version) */
 .status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+  background: transparent;
+  padding: 0;
+}
+
+/* small green dot */
+.status-badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
   background: #22c55e;
-  padding: 6px 12px;
-  border-radius: 20px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 /* FLOW */
