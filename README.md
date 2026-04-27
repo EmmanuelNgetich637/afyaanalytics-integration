@@ -206,6 +206,17 @@ ACCESS TOKEN (6 hour lifecycle)
 ↓  
 AUTO REFRESH  
 
+## Screenshots
+
+### Handshake Flow
+![Handshake Flow](screenshots/handshake.png)
+
+### Backend API Logs
+![Backend Logs](screenshots/backend.png)
+
+### API Logs (Frontend)
+![API Logs](screenshots/apilogs.png)
+
 ## Frontend Features
 
 - Start handshake action  
