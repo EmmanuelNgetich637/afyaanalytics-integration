@@ -160,7 +160,7 @@ class AfyaService:
                 "message": "Complete handshake failed"
             }
 
-        print("\n🎉 FULL AUTH SUCCESS\n")
+        print("\n FULL AUTH SUCCESS\n")
 
         return {
             "success": True,

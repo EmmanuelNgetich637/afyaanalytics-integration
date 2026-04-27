@@ -52,7 +52,7 @@ document.getElementById("startBtn").addEventListener("click", async () => {
 
   document.getElementById("initStatus").innerText = "Success";
 
-  /* ✅ HANDSHAKE TIMER (900s) */
+  /*  HANDSHAKE TIMER (900s) */
   startHandshakeTimer(res.data.expires_in_seconds);
 });
 
@@ -109,7 +109,7 @@ document.getElementById("completeBtn").addEventListener("click", async () => {
   document.getElementById("status").innerText = "Authenticated ✅";
   document.getElementById("status").style.color = "#22c55e";
 
-  /* ✅ ACCESS TOKEN TIMER (6h from backend) */
+  /*  ACCESS TOKEN TIMER (6h from backend) */
   startAccessTimer(res.data.expires_in_seconds);
 
   document.getElementById("completeStatus").innerText = "Success";
